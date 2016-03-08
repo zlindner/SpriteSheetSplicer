@@ -19,16 +19,13 @@ import javax.swing.event.ChangeListener;
 public class Panel extends JPanel {
 
     Panel panel;
-
-    JLabel lblTitle, lblSheet, lblRows, lblColumns, lblWidth, lblHeight, lblOutput;
-    JTextField tfSheet, tfOutput;
+    JLabel lblTitle, lblSheet, lblName, lblRows, lblColumns, lblOutput;
+    JTextField tfSheet, tfName, tfOutput;
     JButton btnSheet, btnConvert, btnOutput;
     JFileChooser fc;
-    JSpinner spRows, spColumns, spWidth, spHeight;
-
-    String sSheetPath, sOutputDir, sFileName = "tank";
+    JSpinner spRows, spColumns;
+    String sSheetPath, sOutputDir, sFileName;
     int nRows, nColumns, nWidth, nHeight;
-
     BufferedImage bimgSheet, bimgImages[];
     File fileImages[];
 
@@ -53,21 +50,17 @@ public class Panel extends JPanel {
         lblSheet.setBounds(35, 65, 300, 25);
         add(lblSheet);
 
+        lblName = new JLabel("Image Names:");
+        lblName.setBounds(35, 120, 300, 25);
+        add(lblName);
+
         lblRows = new JLabel("Rows:");
-        lblRows.setBounds(35, 125, 100, 25);
+        lblRows.setBounds(35, 175, 100, 25);
         add(lblRows);
 
         lblColumns = new JLabel("Columns:");
-        lblColumns.setBounds(200, 125, 100, 25);
+        lblColumns.setBounds(200, 175, 100, 25);
         add(lblColumns);
-
-        lblWidth = new JLabel("Width:");
-        lblWidth.setBounds(35, 175, 100, 25);
-        add(lblWidth);
-
-        lblHeight = new JLabel("Height:");
-        lblHeight.setBounds(210, 175, 100, 25);
-        add(lblHeight);
 
         lblOutput = new JLabel("Ouput Folder:");
         lblOutput.setBounds(35, 225, 300, 25);
@@ -78,6 +71,10 @@ public class Panel extends JPanel {
         tfSheet = new JTextField();
         tfSheet.setBounds(125, 65, 160, 25);
         add(tfSheet);
+
+        tfName = new JTextField();
+        tfName.setBounds(125, 120, 160, 25);
+        add(tfName);
 
         tfOutput = new JTextField();
         tfOutput.setBounds(125, 225, 160, 25);
@@ -130,7 +127,7 @@ public class Panel extends JPanel {
 
     public void initSpinners() {
         spRows = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        spRows.setBounds(75, 125, 100, 25);
+        spRows.setBounds(75, 175, 100, 25);
         spRows.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -140,7 +137,7 @@ public class Panel extends JPanel {
         add(spRows);
 
         spColumns = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        spColumns.setBounds(260, 125, 100, 25);
+        spColumns.setBounds(260, 175, 100, 25);
         spColumns.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -148,31 +145,13 @@ public class Panel extends JPanel {
             }
         });
         add(spColumns);
-
-        spWidth = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        spWidth.setBounds(75, 175, 100, 25);
-        spWidth.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                nWidth = (Integer) spWidth.getValue();
-            }
-        });
-        add(spWidth);
-
-        spHeight = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
-        spHeight.setBounds(260, 175, 100, 25);
-        spHeight.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                nHeight = (Integer) spHeight.getValue();
-            }
-        });
-        add(spHeight);
     }
 
     public void loadSheet() {
         try {
             bimgSheet = ImageIO.read(new File(sSheetPath));
+            nWidth = bimgSheet.getWidth() / nColumns;
+            nHeight = bimgSheet.getHeight() / nRows;
         } catch (IOException ex) {
             System.out.println(ex);
         }
@@ -183,6 +162,12 @@ public class Panel extends JPanel {
     }
 
     public void save() {
+        sFileName = tfName.getText();
+
+        if (sFileName.equals("")) {
+            sFileName = "image";
+        }
+
         for (int i = 0; i < nRows; i++) {
             for (int j = 0; j < nColumns; j++) {
                 bimgImages[Integer.parseInt((i + 1) + "" + (j + 1))] = bimgSheet.getSubimage(nWidth * j, nHeight * i, nWidth, nHeight);
