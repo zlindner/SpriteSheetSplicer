@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -24,8 +25,9 @@ public class Panel extends JPanel {
     JButton btnSheet, btnConvert, btnOutput;
     JFileChooser fc;
     JSpinner spRows, spColumns;
+    JProgressBar pbBar;
     String sSheetPath, sOutputDir, sFileName;
-    int nRows, nColumns, nWidth, nHeight;
+    int nRows = 1, nColumns = 1, nWidth, nHeight;
     BufferedImage bimgSheet, bimgImages[];
     File fileImages[];
 
@@ -39,10 +41,11 @@ public class Panel extends JPanel {
         initButtons();
         initFileChoosers();
         initSpinners();
+        initProgressBar();
     }
 
-    public void initLabels() {
-        lblTitle = new JLabel("Sprite Sheet Splicer v1.0");
+    private void initLabels() {
+        lblTitle = new JLabel("Sprite Sheet Splicer v1.1");
         lblTitle.setBounds(125, 15, 300, 25);
         add(lblTitle);
 
@@ -67,7 +70,7 @@ public class Panel extends JPanel {
         add(lblOutput);
     }
 
-    public void initTextFields() {
+    private void initTextFields() {
         tfSheet = new JTextField();
         tfSheet.setBounds(125, 65, 160, 25);
         add(tfSheet);
@@ -81,7 +84,7 @@ public class Panel extends JPanel {
         add(tfOutput);
     }
 
-    public void initButtons() {
+    private void initButtons() {
         btnSheet = new JButton("...");
         btnSheet.setBounds(295, 65, 30, 25);
         btnSheet.addActionListener(new ActionListener() {
@@ -101,7 +104,7 @@ public class Panel extends JPanel {
         btnConvert.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                loadSheet();
+                load();
             }
         });
         add(btnConvert);
@@ -121,11 +124,11 @@ public class Panel extends JPanel {
         add(btnOutput);
     }
 
-    public void initFileChoosers() {
+    private void initFileChoosers() {
         fc = new JFileChooser();
     }
 
-    public void initSpinners() {
+    private void initSpinners() {
         spRows = new JSpinner(new SpinnerNumberModel(1, 1, Integer.MAX_VALUE, 1));
         spRows.setBounds(75, 175, 100, 25);
         spRows.addChangeListener(new ChangeListener() {
@@ -147,7 +150,13 @@ public class Panel extends JPanel {
         add(spColumns);
     }
 
-    public void loadSheet() {
+    private void initProgressBar() {
+        pbBar = new JProgressBar();
+        pbBar.setBounds(130, 315, 150, 20);
+        add(pbBar);
+    }
+
+    private void load() {
         try {
             bimgSheet = ImageIO.read(new File(sSheetPath));
             nWidth = bimgSheet.getWidth() / nColumns;
@@ -161,9 +170,10 @@ public class Panel extends JPanel {
         save();
     }
 
-    public void save() {
-        sFileName = tfName.getText();
+    private void save() {
+        pbBar.setIndeterminate(true);
 
+        sFileName = tfName.getText();
         if (sFileName.equals("")) {
             sFileName = "image";
         }
@@ -174,10 +184,11 @@ public class Panel extends JPanel {
                 fileImages[Integer.parseInt((i + 1) + "" + (j + 1))] = new File(sOutputDir + "\\" + sFileName + ((i + 1) + "" + (j + 1)) + ".png");
                 try {
                     ImageIO.write(bimgImages[Integer.parseInt((i + 1) + "" + (j + 1))], "png", fileImages[Integer.parseInt((i + 1) + "" + (j + 1))]);
-                } catch (IOException e) {
-                    System.out.println(e);
+                } catch (IOException ex) {
+                    System.out.println(ex);
                 }
             }
         }
+        pbBar.setIndeterminate(false);
     }
 }
